@@ -169,29 +169,23 @@ function PlacesLoader({
         const all: google.maps.places.PlaceResult[] = [];
         let pageCount = 0;
 
-        const handler = (
-          results: google.maps.places.PlaceResult[] | null,
-          status: google.maps.places.PlacesServiceStatus,
-          pagination: google.maps.places.PlaceSearchPagination | null
-        ) => {
-          if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-            all.push(...results);
-          }
-          pageCount++;
-          if (pagination && pagination.hasNextPage && pageCount < 3) {
-            setTimeout(() => pagination.nextPage(), 1500);
-          } else {
-            resolve(all);
-          }
-        };
-
         service.textSearch(
           {
             query: keyword,
             location: loc,
             radius: 2000,
           },
-          handler
+          (results, status, pagination) => {
+            if (status === "OK" && results) {
+              all.push(...results);
+            }
+            pageCount++;
+            if (pagination && pagination.hasNextPage && pageCount < 3) {
+              setTimeout(() => pagination.nextPage(), 1500);
+            } else {
+              resolve(all);
+            }
+          }
         );
       });
     },
